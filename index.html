@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strain-Engineered Bands</title>
+<meta name="description" content="An interactive explainer on how tensile and compressive mechanical strain reshape the band structure, valley degeneracies, and phonon spectrum of semiconductors.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap top-row">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="6" cy="6" r="2.4" fill="white"/>
+          <circle cx="18" cy="6" r="2.4" fill="white"/>
+          <circle cx="6" cy="18" r="2.4" fill="white"/>
+          <circle cx="18" cy="18" r="2.4" fill="white"/>
+          <circle cx="12" cy="12" r="2.4" fill="white"/>
+          <path d="M6 6L12 12M18 6L12 12M6 18L12 12M18 18L12 12" stroke="white" stroke-width="1.1"/>
+        </svg>
+      </div>
+      <span class="brand-name">PHYS·SEMI — Midterm Interactive Report</span>
+    </div>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle color theme">auto</button>
+  </div>
+
+  <div class="wrap hero">
+    <div>
+      <h1>Strain-Engineered Bands</h1>
+      <p class="subhead">How squeezing or stretching a crystal rewrites its electronic and vibrational spectrum.</p>
+      <p class="lede">Mechanical strain changes the spacing between atoms. Because a semiconductor's band structure is built entirely from how neighboring atomic orbitals overlap, even a strain of a few tenths of a percent is enough to shift band edges, split degenerate valleys, and move Raman-active phonon lines — the same physics that lets foundries boost transistor mobility and lets a lab measure stress non-destructively with a laser.</p>
+      <div class="meta-line">
+        <span>Topic: deformation-potential theory</span>
+        <span>Audience: upper-year physics undergraduates</span>
+        <span>Format: interactive explainer</span>
+      </div>
+    </div>
+    <figure class="hero-diagram">
+      <svg viewBox="0 0 360 230" role="img" aria-label="Schematic comparison of an unstrained, tensile, and compressively strained lattice">
+        <g font-family="var(--font-mono)" font-size="10.5" fill="var(--ink-faint)">
+          <!-- unstrained -->
+          <g transform="translate(14,18)">
+            <text x="46" y="-4" text-anchor="middle">unstrained</text>
+            <g stroke="var(--ink-faint)" stroke-width="1.2">
+              <line x1="10" y1="20" x2="82" y2="20"/><line x1="10" y1="52" x2="82" y2="52"/>
+              <line x1="10" y1="20" x2="10" y2="52"/><line x1="46" y1="20" x2="46" y2="52"/><line x1="82" y1="20" x2="82" y2="52"/>
+            </g>
+            <g fill="var(--accent)" stroke="var(--ink)" stroke-width="1">
+              <circle cx="10" cy="20" r="5"/><circle cx="46" cy="20" r="5"/><circle cx="82" cy="20" r="5"/>
+              <circle cx="10" cy="52" r="5"/><circle cx="46" cy="52" r="5"/><circle cx="82" cy="52" r="5"/>
+            </g>
+          </g>
+          <!-- tensile -->
+          <g transform="translate(130,18)">
+            <text x="56" y="-4" text-anchor="middle" fill="var(--tensile)">tensile (+ε)</text>
+            <g stroke="var(--tensile)" stroke-width="1.2">
+              <line x1="0" y1="20" x2="112" y2="20"/><line x1="0" y1="52" x2="112" y2="52"/>
+              <line x1="0" y1="20" x2="0" y2="52"/><line x1="56" y1="20" x2="56" y2="52"/><line x1="112" y1="20" x2="112" y2="52"/>
+            </g>
+            <g fill="var(--tensile)" stroke="var(--ink)" stroke-width="1">
+              <circle cx="0" cy="20" r="5"/><circle cx="56" cy="20" r="5"/><circle cx="112" cy="20" r="5"/>
+              <circle cx="0" cy="52" r="5"/><circle cx="56" cy="52" r="5"/><circle cx="112" cy="52" r="5"/>
+            </g>
+          </g>
+          <!-- compressive -->
+          <g transform="translate(252,18)">
+            <text x="30" y="-4" text-anchor="middle" fill="var(--compressive)">compressive (−ε)</text>
+            <g stroke="var(--compressive)" stroke-width="1.2">
+              <line x1="4" y1="20" x2="56" y2="20"/><line x1="4" y1="52" x2="56" y2="52"/>
+              <line x1="4" y1="20" x2="4" y2="52"/><line x1="30" y1="20" x2="30" y2="52"/><line x1="56" y1="20" x2="56" y2="52"/>
+            </g>
+            <g fill="var(--compressive)" stroke="var(--ink)" stroke-width="1">
+              <circle cx="4" cy="20" r="5"/><circle cx="30" cy="20" r="5"/><circle cx="56" cy="20" r="5"/>
+              <circle cx="4" cy="52" r="5"/><circle cx="30" cy="52" r="5"/><circle cx="56" cy="52" r="5"/>
+            </g>
+          </g>
+          <!-- energy level cartoons below -->
+          <g transform="translate(14,118)" text-anchor="middle">
+            <text x="46" y="-18">E_c, E_v</text>
+            <text x="46" y="-6">unchanged</text>
+            <line x1="20" y1="20" x2="72" y2="20" stroke="var(--ink)" stroke-width="3"/>
+            <line x1="20" y1="70" x2="72" y2="70" stroke="var(--ink)" stroke-width="3"/>
+            <text x="46" y="48" fill="var(--ink-muted)">E_g⁰</text>
+          </g>
+          <g transform="translate(130,118)" text-anchor="middle">
+            <text x="56" y="-18" fill="var(--tensile)">gap narrows</text>
+            <text x="56" y="-6" fill="var(--tensile)">valleys split</text>
+            <line x1="20" y1="26" x2="92" y2="26" stroke="var(--series-a)" stroke-width="3"/>
+            <line x1="20" y1="14" x2="92" y2="14" stroke="var(--series-b)" stroke-width="3"/>
+            <line x1="20" y1="76" x2="92" y2="76" stroke="var(--series-a)" stroke-width="3"/>
+            <line x1="20" y1="88" x2="92" y2="88" stroke="var(--series-b)" stroke-width="3"/>
+          </g>
+          <g transform="translate(252,118)" text-anchor="middle">
+            <text x="30" y="-18" fill="var(--compressive)">gap widens</text>
+            <text x="30" y="-6" fill="var(--compressive)">valleys split</text>
+            <line x1="4" y1="10" x2="56" y2="10" stroke="var(--series-a)" stroke-width="3"/>
+            <line x1="4" y1="22" x2="56" y2="22" stroke="var(--series-b)" stroke-width="3"/>
+            <line x1="4" y1="92" x2="56" y2="92" stroke="var(--series-a)" stroke-width="3"/>
+            <line x1="4" y1="80" x2="56" y2="80" stroke="var(--series-b)" stroke-width="3"/>
+          </g>
+        </g>
+      </svg>
+      <figcaption>A purely schematic preview — build the real thing below.</figcaption>
+    </figure>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ======================= PART 1 — THE PHYSICS ======================= -->
+  <section id="physics" aria-labelledby="physics-h">
+    <div class="section-head">
+      <span class="eyebrow">Part 1 · The physics</span>
+      <h2 id="physics-h">Why atomic spacing decides the band structure</h2>
+      <p class="dek">A semiconductor's energy bands are not a fixed property of its chemical formula — they are a property of the geometry its atoms happen to be sitting in. Strain changes that geometry, so it changes the bands.</p>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept">
+        <h3><span class="idx">1.1</span>From bond length to bandwidth</h3>
+        <p>In a simple tight-binding picture, a band forms because an electron can hop from atom to atom through orbital overlap. The hopping (transfer) integral <code>t</code> falls off steeply with interatomic distance <code>d</code> — roughly <code>t ∝ d⁻ⁿ</code> with <code>n</code> of order 2–4 for typical <code>s</code>/<code>p</code> orbitals. Since the bandwidth and the bonding–antibonding splitting both scale with <code>t</code>, <strong>stretching a bond (tensile strain) weakens overlap and narrows bands; compressing a bond (compressive strain) strengthens overlap and widens them.</strong></p>
+        <div class="formula-block">
+          t(d) = t₀·(d₀ / d)<sup>n</sup>,&nbsp;&nbsp; d = d₀(1 + ε)
+          <span class="note">d₀ is the equilibrium bond length, ε the applied strain along the bond.</span>
+        </div>
+      </div>
+
+      <div class="concept">
+        <h3><span class="idx">1.2</span>Two kinds of strain, two kinds of consequence</h3>
+        <p>Any strain tensor splits into a <strong>hydrostatic</strong> part (equal in all directions — pure volume change, Tr ε = ε<sub>xx</sub>+ε<sub>yy</sub>+ε<sub>zz</sub>) and a <strong>shear / deviatoric</strong> part (direction-dependent, zero trace). Hydrostatic strain preserves the crystal's point-group symmetry, so it can only <em>shift</em> energies rigidly. Shear strain breaks that symmetry, so it can <em>split</em> any level that was degenerate for symmetry reasons. This single distinction explains almost everything below.</p>
+        <div class="formula-block">
+          ε = ε<sub>hydro</sub>·𝟙 + ε<sub>shear</sub>,&nbsp;&nbsp; ε<sub>hydro</sub> = <span class="frac"><span class="num">1</span><span class="den">3</span></span>Tr ε
+        </div>
+      </div>
+
+      <div class="concept">
+        <h3><span class="idx">1.3</span>Deformation-potential theory</h3>
+        <p>Formally, this is captured by <strong>k·p / deformation-potential theory</strong>: for a small strain, every band edge shifts linearly in ε, with a material- and band-specific proportionality constant (the deformation potential) that plays the same role a spring constant plays for a stretched bond. For the hydrostatic part of the gap:</p>
+        <div class="formula-block">
+          ΔE<sub>g</sub> = a<sub>gap</sub> · ε<sub>hydro</sub>
+          <span class="note">a<sub>gap</sub> is typically a few eV and negative for most group-IV / III–V semiconductors, so tensile strain (ε&gt;0) narrows the gap and compressive strain widens it.</span>
+        </div>
+        <p>This is why "tensile vs. compressive" is not just a sign flip of the same number — in multivalley or degenerate systems, the shear component the two cases carry can split bands in <em>opposite</em> directions even when the hydrostatic shift looks symmetric.</p>
+      </div>
+
+      <div class="concept">
+        <h3><span class="idx">1.4</span>Lifting valence-band degeneracy</h3>
+        <p>At the valence-band maximum of a diamond/zinc-blende semiconductor, the heavy-hole (HH) and light-hole (LH) bands are degenerate at k = 0 by cubic symmetry. A shear strain breaks that symmetry (the Pikus–Bir / Bir–Pikus Hamiltonian formalizes this) and splits them apart, with the splitting <em>odd</em> in the shear strain — it vanishes for pure hydrostatic strain and grows linearly with |ε<sub>shear</sub>|.</p>
+        <div class="formula-block">
+          ΔE<sub>HH−LH</sub> ≈ 2b · ε<sub>shear</sub>
+          <span class="note">b is the valence-band shear deformation potential (a few eV). Lifting this degeneracy is exactly what reduces the in-plane hole effective mass in strained-channel PMOS.</span>
+        </div>
+      </div>
+
+      <div class="concept">
+        <h3><span class="idx">1.5</span>Splitting conduction-band valleys</h3>
+        <p>Silicon's conduction-band minimum is not at k = 0: it sits at six equivalent points along the ⟨100⟩ directions (the Δ valleys), related to each other by the cubic symmetry of the lattice. A uniaxial strain along one ⟨100⟩ axis breaks that equivalence, splitting the six valleys into two groups — two valleys aligned with the strain axis (Δ₂) and four perpendicular to it (Δ₄) — shifting apart by an amount set by the <strong>uniaxial deformation potential Ξ<sub>u</sub></strong>.</p>
+        <div class="formula-block">
+          ΔE<sub>Δ₂</sub> = −<span class="frac"><span class="num">2</span><span class="den">3</span></span>Ξ<sub>u</sub>ε<sub>shear</sub>,&nbsp;&nbsp;
+          ΔE<sub>Δ₄</sub> = +<span class="frac"><span class="num">1</span><span class="den">3</span></span>Ξ<sub>u</sub>ε<sub>shear</sub>
+          <span class="note">Electrons preferentially occupy the lower valley group, which also has a lighter in-plane mass and suffers less intervalley scattering — the working principle of strained-Si NMOS. Valleys that sit at the Γ point (as in GaAs or GaN) are singly degenerate and have nothing to split.</span>
+        </div>
+      </div>
+
+      <div class="concept">
+        <h3><span class="idx">1.6</span>Phonons feel the same symmetry breaking</h3>
+        <p>A lattice phonon frequency is set by a force constant and an atomic mass, ω ∝ √(k/μ). Strain softens or stiffens the bond force constant k just as it does the electronic hopping integral, giving a roughly linear "Raman shift" with hydrostatic strain. But the deeper signature of strain is the same degeneracy-lifting story as the electronic bands: a zone-center optical phonon that was doubly or triply degenerate by symmetry splits into distinct branches once shear strain breaks that symmetry — <strong>a doubly-degenerate E₂(high) mode in a hexagonal (wurtzite) crystal such as GaN splits into E₂(high)⁺ and E₂(high)⁻</strong>; the analogous triply-degenerate zone-center mode of a cubic crystal such as Si or GaAs splits into a singlet and a doublet. Because this splitting (and the accompanying shift) is measurable with a simple backscattering Raman setup, it is one of the standard non-destructive ways to map strain across a wafer.</p>
+        <div class="formula-block">
+          ω<sub>±</sub>(ε) = ω₀ + <span class="frac"><span class="num">1</span><span class="den">2</span></span>(p+q)ε<sub>hydro</sub> ± <span class="frac"><span class="num">1</span><span class="den">2</span></span>r·ε<sub>shear</sub>
+          <span class="note">p, q, r are the phonon deformation potentials (Anastassakis formalism); the ± branches coincide exactly when ε<sub>shear</sub> = 0.</span>
+        </div>
+      </div>
+    </div>
+
+    <table class="summary-table">
+      <caption>Quick reference — qualitative trends for a typical group-IV / III–V semiconductor</caption>
+      <thead>
+        <tr><th>Quantity</th><th>Tensile strain (ε&gt;0)</th><th>Compressive strain (ε&lt;0)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Hydrostatic band gap</td><td class="tag-tensile">narrows</td><td class="tag-compressive">widens</td></tr>
+        <tr><td>Bond force constant / phonon frequency</td><td class="tag-tensile">softens (red-shift)</td><td class="tag-compressive">stiffens (blue-shift)</td></tr>
+        <tr><td>Degenerate valley / band splitting</td><td colspan="2">set by |ε<sub>shear</sub>|, independent of hydrostatic sign — vanishes under pure hydrostatic strain</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ======================= PART 2 — EXPLORE ======================= -->
+  <section id="explore" aria-labelledby="explore-h">
+    <div class="section-head">
+      <span class="eyebrow">Part 2 · Control room</span>
+      <h2 id="explore-h">Apply a strain and watch the crystal respond</h2>
+      <p class="dek">Pick a material, choose whether the strain is hydrostatic (isotropic) or uniaxial (along one axis), then drag the slider. Everything on this page — the lattice sketch, the band diagram, and the four graphs in Part 3 — is driven by the same strain value.</p>
+    </div>
+
+    <div class="explore-grid">
+      <div class="panel" aria-label="Strain controls">
+        <h3>Controls</h3>
+
+        <div class="field">
+          <label for="material-select">Material</label>
+          <div class="select-wrap">
+            <select id="material-select">
+              <option value="Si" selected>Silicon (Si) — indirect</option>
+              <option value="Ge">Germanium (Ge) — indirect</option>
+              <option value="GaAs">Gallium Arsenide (GaAs) — direct</option>
+              <option value="GaN">Gallium Nitride (GaN) — wurtzite</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Strain mode</label>
+          <div class="seg" id="mode-seg" role="group" aria-label="Strain mode">
+            <button type="button" data-mode="hydrostatic" aria-pressed="true">Hydrostatic</button>
+            <button type="button" data-mode="uniaxial" aria-pressed="false">Uniaxial</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="strain-slider">Strain, ε &nbsp;(compressive ← 0 → tensile)</label>
+          <div class="strain-slider-row">
+            <input type="range" id="strain-slider" min="-2" max="2" step="0.02" value="0">
+            <span class="strain-readout zero" id="strain-readout">+0.00%</span>
+          </div>
+          <div class="slider-scale"><span>−2.0%</span><span>0</span><span>+2.0%</span></div>
+        </div>
+
+        <button class="reset-btn" id="reset-btn" type="button">Reset to unstrained Si</button>
+
+        <div class="state-badge" id="state-badge" aria-live="polite"></div>
+      </div>
+
+      <div class="viz-stack">
+        <div class="viz-row">
+          <div class="viz-card">
+            <h4>Lattice &amp; orbital-overlap sketch</h4>
+            <svg id="lattice-svg" role="img" aria-label="Schematic 2D lattice showing bond lengths and electron-cloud overlap changing with strain"></svg>
+            <p class="viz-caption">Circles are atomic sites; translucent ellipses sketch the electron-cloud overlap on each horizontal bond — it shrinks as the bond stretches and grows as it compresses. Arrows mark the applied strain axis (and, in uniaxial mode, the Poisson-relaxed lateral axis).</p>
+          </div>
+          <div class="viz-card">
+            <h4>Live band-edge diagram</h4>
+            <svg id="band-svg" role="img" aria-label="Energy level diagram of the conduction and valence band edges, splitting under shear strain"></svg>
+            <p class="viz-caption">Vertical axis is energy (exaggerated scale). Grey bars mark the unstrained reference edges E_c⁰, E_v⁰; colored pairs appear only once shear strain lifts a degeneracy.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= PART 3 — GRAPHS ======================= -->
+  <section id="graphs" aria-labelledby="graphs-h">
+    <div class="section-head">
+      <span class="eyebrow">Part 3 · Strain-dependent properties</span>
+      <h2 id="graphs-h">Four signatures of the same deformation potentials</h2>
+      <p class="dek">Each curve is the linear, leading-order response predicted by deformation-potential theory for the material and mode selected above. The vertical marker tracks the slider; hover any curve for the exact value at that strain.</p>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <h4>Band-gap shift vs. strain</h4>
+        </div>
+        <svg id="chart-gap"></svg>
+        <p class="chart-caption">ΔE<sub>g</sub> = a<sub>gap</sub>·ε<sub>hydro</sub> (eV). Governed purely by the hydrostatic component — identical in hydrostatic and uniaxial mode once ε<sub>hydro</sub> is matched, which is why switching modes mainly changes the <em>slope</em> here.</p>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <h4>Conduction-valley splitting</h4>
+          <div class="chart-legend" id="legend-valley"></div>
+        </div>
+        <svg id="chart-valley"></svg>
+        <p class="chart-caption" id="valley-note"></p>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <h4>Valence-band splitting</h4>
+          <div class="chart-legend" id="legend-vb"></div>
+        </div>
+        <svg id="chart-vb"></svg>
+        <p class="chart-caption">ΔE<sub>HH−LH</sub> = 2b·ε<sub>shear</sub> (eV, offset by the valence-side hydrostatic shift). Collapses to a single degenerate line under pure hydrostatic strain.</p>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <h4>Raman / optical-phonon splitting</h4>
+          <div class="chart-legend" id="legend-phonon"></div>
+        </div>
+        <svg id="chart-phonon"></svg>
+        <p class="chart-caption" id="phonon-note"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= MODEL & PARAMETERS ======================= -->
+  <section id="model" aria-labelledby="model-h">
+    <div class="section-head">
+      <span class="eyebrow">Appendix</span>
+      <h2 id="model-h">Model &amp; parameters</h2>
+      <p class="dek">Current selection: <strong id="material-system">—</strong>. Unstrained gap E<sub>g</sub>⁰ = <strong id="eg0-readout">—</strong>, current gap = <strong id="eg-now-readout">—</strong>.</p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="param-table">
+        <thead>
+          <tr><th>Material</th><th>E<sub>g</sub>⁰ (eV)</th><th>a<sub>gap</sub> (eV)</th><th>Ξ<sub>u</sub> (eV)</th><th>b (eV)</th><th>ω₀ (cm⁻¹)</th></tr>
+        </thead>
+        <tbody id="param-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="disclaimer">
+      <strong>On the numbers:</strong> the deformation potentials above are representative teaching values — correct in sign and order of magnitude, assembled to be consistent with the qualitative trends reported in standard references (e.g. Yu &amp; Cardona, <em>Fundamentals of Semiconductors</em>; Chuang, <em>Physics of Photonic Devices</em>), including Ξ<sub>u</sub>(Si) ≈ 9.2 eV, which is a literature-standard value. They are not a precision materials database, and the lattice sketch in Part 2 exaggerates bond-length changes by roughly 9× so that a realistic ±2% strain stays visible. The physics they encode — linear deformation-potential response, degeneracy lifted only by the shear component of strain — is the actual point of the model.
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h3>About this report</h3>
+      <p>Built for a semiconductor-devices midterm assignment, with AI assistance as instructed, to answer: <em>"Mechanical strain changes the atomic spacing and electronic structure of semiconductors. Show how tensile and compressive strain affect the relevant band edges."</em></p>
+    </div>
+    <div>
+      <h3>Co-editing this page</h3>
+      <ul>
+        <li>Files: <code class="mono">index.html</code> / <code class="mono">style.css</code> / <code class="mono">script.js</code></li>
+        <li>See <code class="mono">README.md</code> for the GitHub Pages + collaboration workflow</li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">Interactive physics explainer · strain-engineered band structure</div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
