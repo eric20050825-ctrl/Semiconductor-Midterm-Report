@@ -2,7 +2,7 @@
 
 Interactive midterm report for Introduction to Semiconductors:
 *"Mechanical strain changes the atomic spacing and electronic structure of
-semiconductors. Show how tensile and compressive strain affect the relevant ttt
+semiconductors. Show how tensile and compressive strain affect the relevant 
 band edges."*
 
 Live structure:
