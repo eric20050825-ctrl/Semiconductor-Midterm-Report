@@ -29,6 +29,8 @@
       phononSplitCoeff: 5.0,
       phononKind: "cubic",
       phononLabels: ["Singlet (p-like)", "Doublet (s-like)"],
+      varshniA: 4.73e-4,
+      varshniB: 636,
     },
     Ge: {
       name: "Germanium (Ge)",
@@ -48,6 +50,8 @@
       phononSplitCoeff: 4.0,
       phononKind: "cubic",
       phononLabels: ["Singlet (p-like)", "Doublet (s-like)"],
+      varshniA: 4.77e-4,
+      varshniB: 235,
     },
     GaAs: {
       name: "Gallium Arsenide (GaAs)",
@@ -66,6 +70,8 @@
       phononSplitCoeff: 4.5,
       phononKind: "cubic",
       phononLabels: ["Singlet (p-like)", "Doublet (s-like)"],
+      varshniA: 5.405e-4,
+      varshniB: 204,
     },
     GaN: {
       name: "Gallium Nitride (GaN)",
@@ -84,6 +90,8 @@
       phononSplitCoeff: 6.0,
       phononKind: "hex",
       phononLabels: ["E₂(high)⁺", "E₂(high)⁻"],
+      varshniA: 9.09e-4,
+      varshniB: 830,
     },
   };
 
@@ -91,8 +99,10 @@
 
   const state = {
     material: "Si",
-    mode: "hydrostatic", // 'hydrostatic' | 'uniaxial'
+    mode: "hydrostatic", // 'hydrostatic' | 'uniaxial' | 'biaxial'
     strain: 0, // percent, -2..2
+    temperature: 300, // K
+    exaggeration: 9, // visual-only amplification of the lattice sketch
   };
 
   /* ---------------- core physics ---------------- */
@@ -103,10 +113,23 @@
     if (mode === "hydrostatic") {
       return { hydro: strainPct, shear: 0 };
     }
+    if (mode === "biaxial") {
+      // In-plane strain ε along x and y (epitaxial film), out-of-plane z relaxes:
+      // ε_zz = -2ν/(1-ν)·ε. Shear is scaled so (1+ν)·shear = ε_zz − ε_xx, matching uniaxial.
+      const hydro = strainPct * 2 * (1 - 2 * POISSON) / (1 - POISSON); // ≈ 1.14 × strainPct
+      const shear = -strainPct / (1 - POISSON);
+      return { hydro, shear };
+    }
     // Uniaxial: axial strain = strainPct, lateral strain = -ν·strainPct (free-standing bar)
     const hydro = strainPct * (1 - 2 * POISSON); // ≈ 0.4 × strainPct
     const shear = strainPct; // deviatoric component driving the splitting
     return { hydro, shear };
+  }
+
+  // Varshni relation, anchored so the table value Eg0 is the 300 K gap
+  function gapAtTemperature(m, T) {
+    const v = (t) => m.varshniA * t * t / (t + m.varshniB);
+    return m.Eg0 + v(300) - v(T);
   }
 
   function computeState(materialKey, mode, strainPct) {
@@ -117,11 +140,11 @@
     let valleyA = null, valleyB = null, valleySplit = 0;
     if (m.hasValley) {
       valleySplit = m.xiU * (shear / 100) * (materialKey === "Si" ? (1 + POISSON) : 1); // eV, full splitting scale
-      valleyA = dEgHydro + (materialKey === "Si" ? 1 : -1) * (2 / 3) * valleySplit; // Δ2 (∥ stress)
-      valleyB = dEgHydro - (materialKey === "Si" ? 1 : -1) * (1 / 3) * valleySplit; // Δ4 (⊥ stress)
+      valleyA = 0.5 * dEgHydro + (materialKey === "Si" ? 1 : -1) * (2 / 3) * valleySplit; // Δ2 (∥ stress)
+      valleyB = 0.5 * dEgHydro - (materialKey === "Si" ? 1 : -1) * (1 / 3) * valleySplit; // Δ4 (⊥ stress)
     } else {
-      valleyA = dEgHydro;
-      valleyB = dEgHydro;
+      valleyA = 0.5 * dEgHydro;
+      valleyB = 0.5 * dEgHydro;
     }
 
     const vbShift = -0.5 * dEgHydro; // simplified symmetric CB/VB split of the hydrostatic shift
@@ -134,13 +157,18 @@
     const phononA = m.phononOmega0 + omegaHydro + omegaSplit / 2;
     const phononB = m.phononOmega0 + omegaHydro - omegaSplit / 2;
 
+    const EgT = gapAtTemperature(m, state.temperature);
+    const bandGap = EgT + Math.min(valleyA, valleyB) - Math.max(vbA, vbB);
+
     return {
       m, hydro, shear, dEgHydro,
       valleyA, valleyB, valleySplit,
       vbA, vbB, vbSplit,
       phononA, phononB,
       gapShift: dEgHydro,
-      effectiveGap: m.Eg0 + dEgHydro,
+      EgT,
+      bandGap,
+      effectiveGap: EgT + dEgHydro,
     };
   }
 
@@ -163,7 +191,6 @@
 
   /* ---------------- lattice + electron-cloud schematic ---------------- */
   const latticeSvg = document.getElementById("lattice-svg");
-  const EXAGGERATION = 9; // visual-only amplification so ±2% strain is legible
 
   function drawLattice(data) {
     clear(latticeSvg);
@@ -177,10 +204,10 @@
     const cols = 5, rows = 4, base = 42;
     const pct = state.strain / 100;
     let exx, eyy;
-    if (state.mode === "hydrostatic") {
-      exx = eyy = pct * EXAGGERATION;
+    if (state.mode === "hydrostatic" || state.mode === "biaxial") {
+      exx = eyy = pct * state.exaggeration; // biaxial: sketch shows the film plane
     } else {
-      exx = pct * EXAGGERATION;         // strain axis = horizontal
+      exx = pct * state.exaggeration;   // strain axis = horizontal
       eyy = -POISSON * exx;             // lateral relaxation
     }
     const dx = base * (1 + exx);
@@ -248,6 +275,15 @@
           stroke: strainColor, "stroke-width": 2, "marker-end": "url(#arrowhead)",
         }));
       });
+      if (state.mode === "biaxial") {
+        [oy, oy + gridH].forEach((ay, idx) => {
+          const dir = idx === 0 ? -sign : sign;
+          g.appendChild(svgEl("line", {
+            x1: ox + gridW + 22, y1: ay, x2: ox + gridW + 22, y2: ay + dir * 12,
+            stroke: strainColor, "stroke-width": 2, "marker-end": "url(#arrowhead)",
+          }));
+        });
+      }
       if (state.mode === "uniaxial") {
         const vy1 = oy, vy2 = oy + gridH;
         const vdir = -sign * POISSON > 0 ? 1 : -1;
@@ -272,7 +308,7 @@
 
     // caption label
     const label = svgEl("text", { x: W / 2, y: H - 8, "text-anchor": "middle", fill: faint, "font-size": 10.5, "font-family": "var(--font-mono)" });
-    label.textContent = `bond-length change exaggerated ×${EXAGGERATION} for visibility`;
+    label.textContent = `bond-length change exaggerated ×${state.exaggeration} for visibility`;
     latticeSvg.appendChild(label);
   }
 
@@ -346,7 +382,7 @@
     const midx = (xA + xB) / 2;
     g.appendChild(svgEl("line", { x1: midx, y1: cbMin, x2: midx, y2: vbMax, stroke: faint, "stroke-width": 1, "stroke-dasharray": "3 3" }));
     const egLabel = svgEl("text", { x: midx, y: (cbMin + vbMax) / 2, "text-anchor": "middle", fill: ink, "font-size": 11.5, "font-family": "var(--font-mono)", "font-weight": 600 });
-    const effGap = data.m.Eg0 + (data.valleyA < data.valleyB ? data.valleyA : data.valleyB) - (data.vbA > data.vbB ? data.vbA : data.vbB);
+    const effGap = data.bandGap;
     egLabel.setAttribute("dy", "-4");
     egLabel.textContent = `${fmt(effGap, 3)} eV`;
     g.appendChild(egLabel);
@@ -591,7 +627,7 @@
 
     document.getElementById("material-system").textContent = m.system;
     document.getElementById("eg0-readout").textContent = `${fmt(m.Eg0, 2)} eV`;
-    document.getElementById("eg-now-readout").textContent = `${fmt(m.Eg0 + data.gapShift, 3)} eV`;
+    document.getElementById("eg-now-readout").textContent = `${fmt(data.bandGap, 3)} eV at ${state.temperature} K`;
   }
 
   /* ---------------- parameter table ---------------- */
@@ -608,6 +644,8 @@
         <td>${m.hasValley ? fmt(m.xiU, 1) : "—"}</td>
         <td>${fmt(m.bVB, 1)}</td>
         <td>${fmt(m.phononOmega0, 1)}</td>
+        <td>${fmt(m.varshniA * 1000, 3)}</td>
+        <td>${m.varshniB}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -632,7 +670,7 @@
     function project(x,y,z){return [210+110*(x*Math.cos(kRotation)-y*Math.sin(kRotation)),165+110*(.43*(x*Math.sin(kRotation)+y*Math.cos(kRotation))-.82*z)];}
     function add(tag,attrs,text){const e=svgEl(tag,attrs);if(text)e.textContent=text;svg.appendChild(e);return e;}
     function energyColor(e){const t=Math.min(1,Math.abs(e)/(.02*MATERIALS.Si.xiU*(1+POISSON)*2/3));const rgb=e>=0?[196,93,54]:[36,123,160];return `rgb(${rgb.map(c=>Math.round(c*t)).join(',')})`;}
-    [['x',1,0,0],['y',0,1,0],['z',0,0,1]].forEach(v=>{const a=project(v[1]*1.4,v[2]*1.4,v[3]*1.4),b=project(-v[1]*1.4,-v[2]*1.4,-v[3]*1.4);add('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:muted,'stroke-width':1});add('text',{x:a[0]+5,y:a[1]-8,fill:ink,'font-size':12},'k'+v[0]+(v[0]==='z'?' (strain axis)':''));});
+    [['x',1,0,0],['y',0,1,0],['z',0,0,1]].forEach(v=>{const a=project(v[1]*1.4,v[2]*1.4,v[3]*1.4),b=project(-v[1]*1.4,-v[2]*1.4,-v[3]*1.4);add('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:muted,'stroke-width':1});add('text',{x:a[0]+5,y:a[1]-8,fill:ink,'font-size':12},'k'+v[0]+(v[0]==='z'?(state.mode==='biaxial'?' (growth axis)':' (strain axis)'):''));});
     valleys.forEach(v=>{const p=project(v[1],v[2],v[3]),end=project(v[1]*1.2,v[2]*1.2,v[3]*1.2),e=(v[3]?data.valleyA:data.valleyB)-mean,angle=Math.atan2(end[1]-p[1],end[0]-p[0])*180/Math.PI;const mark=add('ellipse',{cx:p[0],cy:p[1],rx:26,ry:12,fill:energyColor(e),stroke:ink,'stroke-width':kSelected===v[0]?3:0,transform:`rotate(${angle} ${p[0]} ${p[1]})`});mark.style.cursor='pointer';mark.onclick=()=>{kSelected=v[0];drawSiValleys(data)};add('text',{x:p[0],y:p[1]+32,fill:ink,'text-anchor':'middle','font-size':12},v[0]+' '+(v[3]?'Δ₂':'Δ₄')+(e>1e-8?' ↑':e<-1e-8?' ↓':' ='));});
     const buttons=document.getElementById('si-k-buttons');buttons.replaceChildren();valleys.forEach(v=>{const b=document.createElement('button');b.type='button';b.textContent=v[0];b.setAttribute('aria-pressed',kSelected===v[0]);b.onclick=()=>{kSelected=v[0];drawSiValleys(data)};buttons.appendChild(b)});
     const rot=document.createElement('button');rot.type='button';rot.textContent='Rotate view';rot.onclick=()=>{kRotation+=.35;drawSiValleys(data)};buttons.appendChild(rot);
@@ -651,11 +689,32 @@
     readout.textContent = strainLabel(state.strain);
     readout.className = "strain-readout " + strainTone(state.strain);
 
-    const stateBadge = document.getElementById("state-badge");
-    stateBadge.innerHTML =
-      `material = <b>${data.m.name}</b> &nbsp;·&nbsp; mode = <b>${state.mode}</b><br>` +
-      `ε = <b>${strainLabel(state.strain)}</b> &nbsp;·&nbsp; ε_hydro = <b>${fmt(data.hydro, 2)}%</b> &nbsp;·&nbsp; ε_shear = <b>${fmt(data.shear, 2)}%</b><br>` +
-      `ΔE_g = <b>${fmt(data.gapShift * 1000, 1)} meV</b>`;
+    const miniReadout = document.getElementById("mini-readout");
+    miniReadout.textContent = readout.textContent;
+    miniReadout.className = readout.className;
+    document.getElementById("strain-slider").value = String(state.strain);
+    document.getElementById("mini-slider").value = String(state.strain);
+    document.getElementById("mode-hint").textContent = MODE_HINTS[state.mode];
+    document.getElementById("temp-readout").textContent = `${state.temperature} K`;
+    document.getElementById("exag-readout").textContent = `×${state.exaggeration}`;
+
+    const tone = strainTone(state.strain);
+    const meV = (x) => `${fmt(x * 1000, 1)} meV`;
+    const items = [
+      ["Strain type", tone === "zero" ? "none" : tone, tone],
+      ["Band gap", `${fmt(data.bandGap, 3)} eV`],
+      ["ΔE_g (uniform part)", meV(data.gapShift)],
+      ["CB valley split", data.m.hasValley ? meV(Math.abs(data.valleyA - data.valleyB)) : "— (single valley)"],
+      [`VB split (${data.m.vbShort[0]}–${data.m.vbShort[1]})`, meV(Math.abs(data.vbA - data.vbB))],
+      ["Raman peak", Math.abs(data.phononA - data.phononB) < 0.05
+        ? `${fmt(data.phononA, 1)} cm⁻¹`
+        : `${fmt(Math.min(data.phononA, data.phononB), 1)} / ${fmt(Math.max(data.phononA, data.phononB), 1)}`],
+      ["ε_hydro", `${fmt(data.hydro, 2)}%`],
+      ["ε_shear", `${fmt(data.shear, 2)}%`],
+    ];
+    document.getElementById("live-grid").innerHTML = items
+      .map(([k, v, cls]) => `<div class="live-item"><span>${k}</span><b class="${cls || ""}">${v}</b></div>`)
+      .join("");
 
     allCharts.forEach(c => c.updateMarker());
   }
@@ -663,6 +722,20 @@
   function rebuildCharts() {
     allCharts.forEach(c => c.rebuild());
   }
+
+  const MODE_HINTS = {
+    hydrostatic: "Same strain in every direction. Levels shift, nothing splits.",
+    uniaxial: "Pull or push along one axis (z). Levels shift and split.",
+    biaxial: "In-plane strain, like a thin film grown on a different substrate. Levels shift and split.",
+  };
+
+  const PRESETS = [
+    { label: "Unstrained Si", sub: "reference", material: "Si", mode: "hydrostatic", strain: 0 },
+    { label: "Strained-Si NMOS", sub: "Si on SiGe · biaxial +1.0%", material: "Si", mode: "biaxial", strain: 1.0 },
+    { label: "Si PMOS channel", sub: "SiGe source/drain · uniaxial −1.0%", material: "Si", mode: "uniaxial", strain: -1.0 },
+    { label: "GaN on sapphire", sub: "biaxial −0.3%", material: "GaN", mode: "biaxial", strain: -0.3 },
+    { label: "GaAs under pressure", sub: "diamond anvil · hydrostatic −1.5%", material: "GaAs", mode: "hydrostatic", strain: -1.5 },
+  ];
 
   function init() {
     buildParamTable();
@@ -677,27 +750,112 @@
     const modeButtons = document.querySelectorAll("#mode-seg button");
     modeButtons.forEach(btn => {
       btn.addEventListener("click", () => {
-        state.mode = btn.dataset.mode;
-        modeButtons.forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
+        setMode(btn.dataset.mode);
         rebuildCharts();
         render();
       });
     });
 
+    function setMode(mode) {
+      state.mode = mode;
+      modeButtons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    }
+
+    function setStrain(v) {
+      state.strain = Math.round(Math.max(-2, Math.min(2, v)) * 50) / 50; // snap to the 0.02 slider step
+      render();
+    }
+
+    // auto sweep −2% → +2% → −2%
+    const playBtn = document.getElementById("play-btn");
+    let playing = false, sweepDir = 1, lastT = 0;
+    function stopSweep() {
+      playing = false;
+      playBtn.textContent = "▶ Sweep";
+      playBtn.setAttribute("aria-pressed", "false");
+    }
+    function sweepFrame(t) {
+      if (!playing) return;
+      const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0;
+      lastT = t;
+      let next = state.strain + sweepDir * 1.2 * dt; // 1.2 % per second
+      if (next >= 2) { next = 2; sweepDir = -1; }
+      if (next <= -2) { next = -2; sweepDir = 1; }
+      state.strain = next;
+      render();
+      requestAnimationFrame(sweepFrame);
+    }
+    playBtn.addEventListener("click", () => {
+      if (playing) { stopSweep(); setStrain(state.strain); return; }
+      playing = true; lastT = 0;
+      playBtn.textContent = "❚❚ Pause";
+      playBtn.setAttribute("aria-pressed", "true");
+      requestAnimationFrame(sweepFrame);
+    });
+
     const strainSlider = document.getElementById("strain-slider");
-    strainSlider.addEventListener("input", () => {
-      state.strain = parseFloat(strainSlider.value);
+    const miniSlider = document.getElementById("mini-slider");
+    [strainSlider, miniSlider].forEach(el => el.addEventListener("input", () => {
+      stopSweep();
+      setStrain(parseFloat(el.value));
+    }));
+
+    document.querySelectorAll(".tool-btn[data-step]").forEach(btn => {
+      btn.addEventListener("click", () => { stopSweep(); setStrain(state.strain + parseFloat(btn.dataset.step)); });
+    });
+    document.getElementById("zero-btn").addEventListener("click", () => { stopSweep(); setStrain(0); });
+
+    const tempSlider = document.getElementById("temp-slider");
+    tempSlider.addEventListener("input", () => {
+      state.temperature = parseInt(tempSlider.value, 10);
       render();
     });
 
+    const exagSlider = document.getElementById("exag-slider");
+    exagSlider.addEventListener("input", () => {
+      state.exaggeration = parseInt(exagSlider.value, 10);
+      render();
+    });
+
+    const presetList = document.getElementById("preset-list");
+    PRESETS.forEach(p => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "preset-btn";
+      b.innerHTML = `<b>${p.label}</b><span>${p.sub}</span>`;
+      b.addEventListener("click", () => {
+        stopSweep();
+        state.material = p.material;
+        materialSelect.value = p.material;
+        setMode(p.mode);
+        state.strain = p.strain;
+        rebuildCharts();
+        render();
+      });
+      presetList.appendChild(b);
+    });
+
     document.getElementById("reset-btn").addEventListener("click", () => {
-      state.material = "Si"; state.mode = "hydrostatic"; state.strain = 0;
+      stopSweep();
+      state.material = "Si"; state.strain = 0; state.temperature = 300; state.exaggeration = 9;
       materialSelect.value = "Si";
-      modeButtons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === "hydrostatic")));
-      strainSlider.value = "0";
+      setMode("hydrostatic");
+      tempSlider.value = "300";
+      exagSlider.value = "9";
       rebuildCharts();
       render();
     });
+
+    // narrow screens: show a compact strain bar once the main slider scrolls out of view
+    const miniBar = document.getElementById("mini-bar");
+    const lab = document.getElementById("lab");
+    function updateMiniBar() {
+      const r = strainSlider.getBoundingClientRect();
+      const l = lab.getBoundingClientRect();
+      miniBar.hidden = !(r.bottom < 0 && l.bottom > 120);
+    }
+    window.addEventListener("scroll", updateMiniBar, { passive: true });
+    window.addEventListener("resize", updateMiniBar);
 
     // theme toggle
     const themeBtn = document.getElementById("theme-toggle");
@@ -723,7 +881,6 @@
 
     rebuildCharts();
     render();
-    window.addEventListener("resize", () => {}); // SVGs are viewBox-scaled, no JS needed
   }
 
   document.addEventListener("DOMContentLoaded", init);

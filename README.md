@@ -69,3 +69,5 @@ representative.
 
 
 Silicon k-space update: the Part 2 six-valley view shares the existing strain slider and mode controls. Colors encode deviations from the six-valley mean (black); hydrostatic loading preserves valley degeneracy. Si uniaxial splitting uses Xi_u (1 + nu) epsilon with nu = 0.30; positive axial strain raises Delta_2 relative to Delta_4. Mean shifts retain the original illustrative band model, not absolute conduction-band deformation potentials.
+
+V4 update: Part 1 rewritten as four short cards plus a cheat sheet. Controls now sit in a sticky side panel next to Parts 2 and 3 (a bottom strain bar appears on phones), so the graphs stay visible while you drag. New controls: biaxial (epitaxial film) mode, ±0.1% step buttons, auto sweep, temperature slider (Varshni gap), lattice-sketch zoom, real-world presets, and a live numbers panel. The hydrostatic gap shift is now split evenly between conduction and valence edges so the drawn gap matches ΔE_g.
