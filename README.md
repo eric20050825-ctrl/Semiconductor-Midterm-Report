@@ -66,3 +66,6 @@ The parameter table and the "On the numbers" note in `index.html`'s appendix
 section explain which constants are literature values vs. illustrative
 teaching values — update that note if you change what's rigorous vs.
 representative.
+
+
+Silicon k-space update: the Part 2 six-valley view shares the existing strain slider and mode controls. Colors encode deviations from the six-valley mean (black); hydrostatic loading preserves valley degeneracy. Si uniaxial splitting uses Xi_u (1 + nu) epsilon with nu = 0.30; positive axial strain raises Delta_2 relative to Delta_4. Mean shifts retain the original illustrative band model, not absolute conduction-band deformation potentials.

@@ -371,3 +371,9 @@ input[type="range"]::-moz-range-thumb{
   .concept, .chart-card, .viz-card{transition:border-color .15s ease;}
 }
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+#si-k-panel[hidden]{display:none} #si-k-svg{width:100%;height:auto;background:#fff;border-radius:8px} .k-legend,.k-buttons{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0} .k-buttons button{padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer} .k-buttons button[aria-pressed="true"]{border-color:var(--ink);font-weight:600}
+
+.viz-stack > .viz-row:first-child{grid-template-columns:1fr} .band-valley-row{grid-template-columns:1fr 1fr;align-items:stretch} .band-valley-row .viz-card{align-self:stretch} @media(max-width:760px){.band-valley-row{grid-template-columns:1fr}}
+
+.viz-stack > .viz-row:first-child #lattice-svg{max-width:480px;margin-inline:auto}

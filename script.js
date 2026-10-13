@@ -18,8 +18,8 @@
       aGap: -8.0,
       hasValley: true,
       xiU: 9.16,
-      valleyNote: "6 equivalent Δ valleys split 2 (Δ₂, ∥ stress) + 4 (Δ₄, ⊥ stress)",
-      valleyLabels: ["Δ₂ (∥)", "Δ₄ (⊥)"],
+      valleyNote: "6 equivalent Δ valleys split into 2 (Δ₂, parallel to stress) + 4 (Δ₄, perpendicular to stress)",
+      valleyLabels: ["Δ₂ (parallel)", "Δ₄ (perpendicular)"],
       valleyShort: ["Δ₂", "Δ₄"],
       bVB: -2.1,
       vbLabels: ["Heavy-hole-like (HH)", "Light-hole-like (LH)"],
@@ -116,9 +116,9 @@
 
     let valleyA = null, valleyB = null, valleySplit = 0;
     if (m.hasValley) {
-      valleySplit = m.xiU * (shear / 100); // eV, full splitting scale
-      valleyA = dEgHydro - (2 / 3) * valleySplit; // Δ2 (∥ stress)
-      valleyB = dEgHydro + (1 / 3) * valleySplit; // Δ4 (⊥ stress)
+      valleySplit = m.xiU * (shear / 100) * (materialKey === "Si" ? (1 + POISSON) : 1); // eV, full splitting scale
+      valleyA = dEgHydro + (materialKey === "Si" ? 1 : -1) * (2 / 3) * valleySplit; // Δ2 (∥ stress)
+      valleyB = dEgHydro - (materialKey === "Si" ? 1 : -1) * (1 / 3) * valleySplit; // Δ4 (⊥ stress)
     } else {
       valleyA = dEgHydro;
       valleyB = dEgHydro;
@@ -362,6 +362,9 @@
   const CW = 480, CH = 230, M = { left: 48, right: 14, top: 14, bottom: 30 };
 
   function makeChart(svg, opts) {
+    const M = opts.yLabel
+      ? { left: 76, right: 22, top: 14, bottom: 54 }
+      : { left: 48, right: 14, top: 14, bottom: 30 };
     // opts: {getSeries(materialKey,mode) -> [{label,colorVar,points:[{x,y}]}], yLabel, xDomain:[lo,hi]}
     svg.setAttribute("viewBox", `0 0 ${CW} ${CH}`);
     let series = [];
@@ -406,6 +409,25 @@
       });
       staticLayer.appendChild(svgEl("line", { class: "axis-line", x1: M.left, y1: CH - M.bottom, x2: CW - M.right, y2: CH - M.bottom }));
       staticLayer.appendChild(svgEl("line", { class: "axis-line", x1: M.left, y1: M.top, x2: M.left, y2: CH - M.bottom }));
+      // Axis titles use the same units as the plotted data.
+      if (opts.yLabel) {
+        const xTitle = svgEl("text", {
+          x: (M.left + CW - M.right) / 2, y: CH - 9,
+          "text-anchor": "middle", fill: cssVar("--axis-text"),
+          "font-size": 11, "font-family": "sans-serif"
+        });
+        xTitle.textContent = "Strain ε (%)";
+        staticLayer.appendChild(xTitle);
+        const yCenter = (M.top + CH - M.bottom) / 2;
+        const yTitle = svgEl("text", {
+          transform: `translate(16 ${yCenter}) rotate(-90)`,
+          "text-anchor": "middle", fill: cssVar("--axis-text"),
+          "font-size": 11, "font-family": "sans-serif"
+        });
+        yTitle.textContent = opts.yLabel;
+        staticLayer.appendChild(yTitle);
+        svg.setAttribute("aria-label", `${opts.yLabel} versus strain ε (%)`);
+      }
       // zero-strain reference line
       const x0 = xPix(0);
       staticLayer.appendChild(svgEl("line", { x1: x0, y1: M.top, x2: x0, y2: CH - M.bottom, stroke: cssVar("--grid-line"), "stroke-width": 1.2, "stroke-dasharray": "2 4" }));
@@ -493,6 +515,7 @@
   }
 
   const chartGap = makeChart(document.getElementById("chart-gap"), {
+    yLabel: "Band-gap shift ΔEg (eV)",
     xDomain: strainXDomain,
     yFmt: (v) => fmt(v, 3),
     getSeries: (materialKey, mode) => {
@@ -502,6 +525,7 @@
   });
 
   const chartValley = makeChart(document.getElementById("chart-valley"), {
+    yLabel: "Valley energy shift ΔE (eV)",
     xDomain: strainXDomain,
     yFmt: (v) => fmt(v, 3),
     getSeries: (materialKey, mode) => {
@@ -517,6 +541,7 @@
   });
 
   const chartVB = makeChart(document.getElementById("chart-vb"), {
+    yLabel: "Valence-band energy shift ΔEv (eV)",
     xDomain: strainXDomain,
     yFmt: (v) => fmt(v, 3),
     getSeries: (materialKey, mode) => {
@@ -531,6 +556,7 @@
   });
 
   const chartPhonon = makeChart(document.getElementById("chart-phonon"), {
+    yLabel: "Raman shift (cm⁻¹)",
     xDomain: strainXDomain,
     yFmt: (v) => fmt(v, 1),
     getSeries: (materialKey, mode) => {
@@ -593,10 +619,32 @@
     return `${sign}${fmt(pct, 2)}%`;
   }
 
+  let kSelected = '+z', kRotation = 0.55;
+  function drawSiValleys(data) {
+    const panel = document.getElementById('si-k-panel');
+    panel.hidden = state.material !== 'Si';
+    if (panel.hidden) return;
+    const svg = document.getElementById('si-k-svg');
+    clear(svg); svg.setAttribute('viewBox','0 0 420 340');
+    const ink=cssVar('--ink'), muted=cssVar('--ink-muted');
+    const mean=(2*data.valleyA+4*data.valleyB)/6;
+    const valleys=[['+x',1,0,0],['−x',-1,0,0],['+y',0,1,0],['−y',0,-1,0],['+z',0,0,1],['−z',0,0,-1]];
+    function project(x,y,z){return [210+110*(x*Math.cos(kRotation)-y*Math.sin(kRotation)),165+110*(.43*(x*Math.sin(kRotation)+y*Math.cos(kRotation))-.82*z)];}
+    function add(tag,attrs,text){const e=svgEl(tag,attrs);if(text)e.textContent=text;svg.appendChild(e);return e;}
+    function energyColor(e){const t=Math.min(1,Math.abs(e)/(.02*MATERIALS.Si.xiU*(1+POISSON)*2/3));const rgb=e>=0?[196,93,54]:[36,123,160];return `rgb(${rgb.map(c=>Math.round(c*t)).join(',')})`;}
+    [['x',1,0,0],['y',0,1,0],['z',0,0,1]].forEach(v=>{const a=project(v[1]*1.4,v[2]*1.4,v[3]*1.4),b=project(-v[1]*1.4,-v[2]*1.4,-v[3]*1.4);add('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:muted,'stroke-width':1});add('text',{x:a[0]+5,y:a[1]-8,fill:ink,'font-size':12},'k'+v[0]+(v[0]==='z'?' (strain axis)':''));});
+    valleys.forEach(v=>{const p=project(v[1],v[2],v[3]),end=project(v[1]*1.2,v[2]*1.2,v[3]*1.2),e=(v[3]?data.valleyA:data.valleyB)-mean,angle=Math.atan2(end[1]-p[1],end[0]-p[0])*180/Math.PI;const mark=add('ellipse',{cx:p[0],cy:p[1],rx:26,ry:12,fill:energyColor(e),stroke:ink,'stroke-width':kSelected===v[0]?3:0,transform:`rotate(${angle} ${p[0]} ${p[1]})`});mark.style.cursor='pointer';mark.onclick=()=>{kSelected=v[0];drawSiValleys(data)};add('text',{x:p[0],y:p[1]+32,fill:ink,'text-anchor':'middle','font-size':12},v[0]+' '+(v[3]?'Δ₂':'Δ₄')+(e>1e-8?' ↑':e<-1e-8?' ↓':' ='));});
+    const buttons=document.getElementById('si-k-buttons');buttons.replaceChildren();valleys.forEach(v=>{const b=document.createElement('button');b.type='button';b.textContent=v[0];b.setAttribute('aria-pressed',kSelected===v[0]);b.onclick=()=>{kSelected=v[0];drawSiValleys(data)};buttons.appendChild(b)});
+    const rot=document.createElement('button');rot.type='button';rot.textContent='Rotate view';rot.onclick=()=>{kRotation+=.35;drawSiValleys(data)};buttons.appendChild(rot);
+    const z=kSelected.includes('z'),e=(z?data.valleyA:data.valleyB)-mean;
+    document.getElementById('si-k-detail').textContent=`Relative energy: ${fmt(e*1000,1)} meV`;
+  }
+
   function render() {
     const data = computeState(state.material, state.mode, state.strain);
     drawLattice(data);
     drawBandDiagram(data);
+    drawSiValleys(data);
     updateLegendsAndLabels(data);
 
     const readout = document.getElementById("strain-readout");

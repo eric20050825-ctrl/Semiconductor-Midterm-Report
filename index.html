@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Strain-Engineered Bands</title>
+<title>V3 · Strain-Engineered Bands</title>
 <meta name="description" content="An interactive explainer on how tensile and compressive mechanical strain reshape the band structure, valley degeneracies, and phonon spectrum of semiconductors.">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=layout-v3">
 </head>
 <body>
 
@@ -241,11 +241,22 @@
             <svg id="lattice-svg" role="img" aria-label="Schematic 2D lattice showing bond lengths and electron-cloud overlap changing with strain"></svg>
             <p class="viz-caption">Circles are atomic sites; translucent ellipses sketch the electron-cloud overlap on each horizontal bond — it shrinks as the bond stretches and grows as it compresses. Arrows mark the applied strain axis (and, in uniaxial mode, the Poisson-relaxed lateral axis).</p>
           </div>
+        </div>
+        <div class="viz-row band-valley-row">
           <div class="viz-card">
             <h4>Live band-edge diagram</h4>
             <svg id="band-svg" role="img" aria-label="Energy level diagram of the conduction and valence band edges, splitting under shear strain"></svg>
             <p class="viz-caption">Vertical axis is energy (exaggerated scale). Grey bars mark the unstrained reference edges E_c⁰, E_v⁰; colored pairs appear only once shear strain lifts a degeneracy.</p>
           </div>
+          <div class="viz-card" id="si-k-panel">
+            <h4>Silicon: 3D k-space valleys</h4>
+            <svg id="si-k-svg" role="img" aria-label="Six silicon valleys in k-space"></svg>
+            <div class="k-legend"><span style="color:#247ba0">● Lower energy</span><span style="color:#000">● Mean energy</span><span style="color:#c45d36">● Higher energy</span></div>
+            <div id="si-k-buttons" class="k-buttons"></div>
+            <p id="si-k-detail" aria-live="polite"></p>
+            <p class="viz-caption">Colors show energy relative to the six-valley mean. Black denotes the mean. Ellipsoid positions and sizes are schematic; k axes use arbitrary units. Valley axes do not restrict electron motion.</p>
+          </div>
+
         </div>
       </div>
     </div>
@@ -338,6 +349,6 @@
   <div class="wrap footer-bottom">Interactive physics explainer · strain-engineered band structure</div>
 </footer>
 
-<script src="script.js"></script>
+<script src="script.js?v=layout-v3"></script>
 </body>
 </html>
