@@ -39,71 +39,88 @@
       </div>
     </div>
     <figure class="hero-diagram">
-      <svg viewBox="0 0 360 230" role="img" aria-label="Schematic comparison of an unstrained, tensile, and compressively strained lattice">
-        <g font-family="var(--font-mono)" font-size="10.5" fill="var(--ink-faint)">
-          <!-- unstrained -->
-          <g transform="translate(14,18)">
-            <text x="46" y="-4" text-anchor="middle">unstrained</text>
-            <g stroke="var(--ink-faint)" stroke-width="1.2">
-              <line x1="10" y1="20" x2="82" y2="20"/><line x1="10" y1="52" x2="82" y2="52"/>
-              <line x1="10" y1="20" x2="10" y2="52"/><line x1="46" y1="20" x2="46" y2="52"/><line x1="82" y1="20" x2="82" y2="52"/>
-            </g>
-            <g fill="var(--accent)" stroke="var(--ink)" stroke-width="1">
-              <circle cx="10" cy="20" r="5"/><circle cx="46" cy="20" r="5"/><circle cx="82" cy="20" r="5"/>
-              <circle cx="10" cy="52" r="5"/><circle cx="46" cy="52" r="5"/><circle cx="82" cy="52" r="5"/>
-            </g>
+      <svg viewBox="0 0 420 300" role="img" aria-label="Unstrained, tensile and compressive lattices with their band gaps: tensile strain makes the gap smaller than the unstrained gap, compressive strain makes it larger">
+        <defs>
+          <marker id="hero-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L8,4 L0,8 Z" fill="var(--ink)"/>
+          </marker>
+        </defs>
+        <g font-family="var(--font-mono)" font-size="10.5" fill="var(--ink-faint)" text-anchor="middle">
+          <!-- column titles -->
+          <text x="95" y="16">unstrained</text>
+          <text x="95" y="28">(before)</text>
+          <text x="225" y="16" fill="var(--tensile)">tensile +ε</text>
+          <text x="225" y="28" fill="var(--tensile)">(after stretch)</text>
+          <text x="355" y="16" fill="var(--compressive)">compressive −ε</text>
+          <text x="355" y="28" fill="var(--compressive)">(after squeeze)</text>
+
+          <!-- lattices -->
+          <g stroke="var(--ink-faint)" stroke-width="1.2">
+            <line x1="59" y1="44" x2="131" y2="44"/><line x1="59" y1="72" x2="131" y2="72"/>
+            <line x1="59" y1="44" x2="59" y2="72"/><line x1="95" y1="44" x2="95" y2="72"/><line x1="131" y1="44" x2="131" y2="72"/>
           </g>
-          <!-- tensile -->
-          <g transform="translate(130,18)">
-            <text x="56" y="-4" text-anchor="middle" fill="var(--tensile)">tensile (+ε)</text>
-            <g stroke="var(--tensile)" stroke-width="1.2">
-              <line x1="0" y1="20" x2="112" y2="20"/><line x1="0" y1="52" x2="112" y2="52"/>
-              <line x1="0" y1="20" x2="0" y2="52"/><line x1="56" y1="20" x2="56" y2="52"/><line x1="112" y1="20" x2="112" y2="52"/>
-            </g>
-            <g fill="var(--tensile)" stroke="var(--ink)" stroke-width="1">
-              <circle cx="0" cy="20" r="5"/><circle cx="56" cy="20" r="5"/><circle cx="112" cy="20" r="5"/>
-              <circle cx="0" cy="52" r="5"/><circle cx="56" cy="52" r="5"/><circle cx="112" cy="52" r="5"/>
-            </g>
+          <g fill="var(--accent)" stroke="var(--ink)" stroke-width="1">
+            <circle cx="59" cy="44" r="5"/><circle cx="95" cy="44" r="5"/><circle cx="131" cy="44" r="5"/>
+            <circle cx="59" cy="72" r="5"/><circle cx="95" cy="72" r="5"/><circle cx="131" cy="72" r="5"/>
           </g>
-          <!-- compressive -->
-          <g transform="translate(252,18)">
-            <text x="30" y="-4" text-anchor="middle" fill="var(--compressive)">compressive (−ε)</text>
-            <g stroke="var(--compressive)" stroke-width="1.2">
-              <line x1="4" y1="20" x2="56" y2="20"/><line x1="4" y1="52" x2="56" y2="52"/>
-              <line x1="4" y1="20" x2="4" y2="52"/><line x1="30" y1="20" x2="30" y2="52"/><line x1="56" y1="20" x2="56" y2="52"/>
-            </g>
-            <g fill="var(--compressive)" stroke="var(--ink)" stroke-width="1">
-              <circle cx="4" cy="20" r="5"/><circle cx="30" cy="20" r="5"/><circle cx="56" cy="20" r="5"/>
-              <circle cx="4" cy="52" r="5"/><circle cx="30" cy="52" r="5"/><circle cx="56" cy="52" r="5"/>
-            </g>
+          <g stroke="var(--tensile)" stroke-width="1.2">
+            <line x1="179" y1="44" x2="271" y2="44"/><line x1="179" y1="72" x2="271" y2="72"/>
+            <line x1="179" y1="44" x2="179" y2="72"/><line x1="225" y1="44" x2="225" y2="72"/><line x1="271" y1="44" x2="271" y2="72"/>
           </g>
-          <!-- energy level cartoons below -->
-          <g transform="translate(14,118)" text-anchor="middle">
-            <text x="46" y="-18">E_c, E_v</text>
-            <text x="46" y="-6">unchanged</text>
-            <line x1="20" y1="20" x2="72" y2="20" stroke="var(--ink)" stroke-width="3"/>
-            <line x1="20" y1="70" x2="72" y2="70" stroke="var(--ink)" stroke-width="3"/>
-            <text x="46" y="48" fill="var(--ink-muted)">E_g⁰</text>
+          <g fill="var(--tensile)" stroke="var(--ink)" stroke-width="1">
+            <circle cx="179" cy="44" r="5"/><circle cx="225" cy="44" r="5"/><circle cx="271" cy="44" r="5"/>
+            <circle cx="179" cy="72" r="5"/><circle cx="225" cy="72" r="5"/><circle cx="271" cy="72" r="5"/>
           </g>
-          <g transform="translate(130,118)" text-anchor="middle">
-            <text x="56" y="-18" fill="var(--tensile)">gap narrows</text>
-            <text x="56" y="-6" fill="var(--tensile)">valleys split</text>
-            <line x1="20" y1="26" x2="92" y2="26" stroke="var(--series-a)" stroke-width="3"/>
-            <line x1="20" y1="14" x2="92" y2="14" stroke="var(--series-b)" stroke-width="3"/>
-            <line x1="20" y1="76" x2="92" y2="76" stroke="var(--series-a)" stroke-width="3"/>
-            <line x1="20" y1="88" x2="92" y2="88" stroke="var(--series-b)" stroke-width="3"/>
+          <g stroke="var(--compressive)" stroke-width="1.2">
+            <line x1="329" y1="44" x2="381" y2="44"/><line x1="329" y1="72" x2="381" y2="72"/>
+            <line x1="329" y1="44" x2="329" y2="72"/><line x1="355" y1="44" x2="355" y2="72"/><line x1="381" y1="44" x2="381" y2="72"/>
           </g>
-          <g transform="translate(252,118)" text-anchor="middle">
-            <text x="30" y="-18" fill="var(--compressive)">gap widens</text>
-            <text x="30" y="-6" fill="var(--compressive)">valleys split</text>
-            <line x1="4" y1="10" x2="56" y2="10" stroke="var(--series-a)" stroke-width="3"/>
-            <line x1="4" y1="22" x2="56" y2="22" stroke="var(--series-b)" stroke-width="3"/>
-            <line x1="4" y1="92" x2="56" y2="92" stroke="var(--series-a)" stroke-width="3"/>
-            <line x1="4" y1="80" x2="56" y2="80" stroke="var(--series-b)" stroke-width="3"/>
+          <g fill="var(--compressive)" stroke="var(--ink)" stroke-width="1">
+            <circle cx="329" cy="44" r="5"/><circle cx="355" cy="44" r="5"/><circle cx="381" cy="44" r="5"/>
+            <circle cx="329" cy="72" r="5"/><circle cx="355" cy="72" r="5"/><circle cx="381" cy="72" r="5"/>
           </g>
+
+          <!-- unstrained edges carried across as dashed references -->
+          <g stroke="var(--ink-faint)" stroke-width="1" stroke-dasharray="3 3">
+            <line x1="40" y1="130" x2="410" y2="130"/>
+            <line x1="40" y1="210" x2="410" y2="210"/>
+          </g>
+          <text x="20" y="133" fill="var(--ink-muted)">E_c</text>
+          <text x="20" y="213" fill="var(--ink-muted)">E_v</text>
+
+          <!-- unstrained: E_g0 -->
+          <line x1="55" y1="130" x2="135" y2="130" stroke="var(--ink)" stroke-width="3"/>
+          <line x1="55" y1="210" x2="135" y2="210" stroke="var(--ink)" stroke-width="3"/>
+          <line x1="95" y1="134" x2="95" y2="206" stroke="var(--ink)" stroke-width="1.3" marker-start="url(#hero-arrow)" marker-end="url(#hero-arrow)"/>
+          <text x="101" y="174" text-anchor="start" fill="var(--ink)" font-weight="600">E_g⁰</text>
+
+          <!-- tensile: gap shrinks, levels split -->
+          <line x1="185" y1="134" x2="265" y2="134" stroke="var(--series-b)" stroke-width="3"/>
+          <line x1="185" y1="146" x2="265" y2="146" stroke="var(--series-a)" stroke-width="3"/>
+          <line x1="185" y1="194" x2="265" y2="194" stroke="var(--series-a)" stroke-width="3"/>
+          <line x1="185" y1="204" x2="265" y2="204" stroke="var(--series-b)" stroke-width="3"/>
+          <line x1="225" y1="150" x2="225" y2="190" stroke="var(--ink)" stroke-width="1.3" marker-start="url(#hero-arrow)" marker-end="url(#hero-arrow)"/>
+          <text x="231" y="174" text-anchor="start" fill="var(--tensile)" font-weight="600">E_g</text>
+
+          <!-- compressive: gap widens, levels split -->
+          <line x1="315" y1="106" x2="395" y2="106" stroke="var(--series-b)" stroke-width="3"/>
+          <line x1="315" y1="118" x2="395" y2="118" stroke="var(--series-a)" stroke-width="3"/>
+          <line x1="315" y1="222" x2="395" y2="222" stroke="var(--series-a)" stroke-width="3"/>
+          <line x1="315" y1="234" x2="395" y2="234" stroke="var(--series-b)" stroke-width="3"/>
+          <line x1="355" y1="122" x2="355" y2="218" stroke="var(--ink)" stroke-width="1.3" marker-start="url(#hero-arrow)" marker-end="url(#hero-arrow)"/>
+          <text x="361" y="174" text-anchor="start" fill="var(--compressive)" font-weight="600">E_g</text>
+
+          <!-- verdicts -->
+          <text x="95" y="256" fill="var(--ink)" font-weight="600">E_g⁰</text>
+          <text x="95" y="270" fill="var(--ink-muted)">gap before</text>
+          <text x="225" y="256" fill="var(--tensile)" font-weight="600">E_g &lt; E_g⁰</text>
+          <text x="225" y="270" fill="var(--tensile)">smaller gap</text>
+          <text x="355" y="256" fill="var(--compressive)" font-weight="600">E_g &gt; E_g⁰</text>
+          <text x="355" y="270" fill="var(--compressive)">larger gap</text>
+          <text x="210" y="294" fill="var(--ink-faint)">dashed = band edges before strain · two colors = split level</text>
         </g>
       </svg>
-      <figcaption>A purely schematic preview — build the real thing below.</figcaption>
+      <figcaption>Schematic only — the lab below shows real numbers.</figcaption>
     </figure>
   </div>
 </header>
